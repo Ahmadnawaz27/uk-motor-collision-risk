@@ -6,7 +6,7 @@ Department for Transport's STATS19 open data. 513,801 reported collisions,
 
 **Coverage.** STATS19 is a Great Britain system, covering England, Scotland and
 Wales. Northern Ireland records collisions separately through the PSNI and is
-not in this data, so no figure here is a United Kingdom total.
+not included here.
 
 It is structured the way an insurer reads a book of business: headline position
 first, then exposure against rate, then the factors that move the rate.
@@ -104,7 +104,7 @@ denominator this data does not have.
 
 ## Measures
 
-Twenty-one in all, on a dedicated `Measures` table. The ones that carry the
+Twenty-three in all, on a dedicated `_Measures` table. The ones that carry the
 report:
 
 | Measure | Definition |
