@@ -50,7 +50,8 @@ Screenshots of all five pages are in [`/screenshots`](screenshots).
 
 The filter panel, cross-page filtering and the decomposition tree running live.
 
-<!-- Drag demo.mp4 into the GitHub README editor on this line to embed the player -->
+https://github.com/user-attachments/assets/636edba8-a9e5-4224-83a9-bfada76c6e8b
+
 
 
 ---
