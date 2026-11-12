@@ -7,6 +7,8 @@ Department for Transport's STATS19 open data. 513,801 reported collisions,
 It is structured the way an insurer reads a book of business: headline position
 first, then exposure against rate, then the factors that move the rate.
 
+![Portfolio summary page](screenshots/01-portfolio-summary.png)
+
 ---
 
 ## Findings
@@ -44,14 +46,13 @@ traffic returned, 2023 fell by 1,746, 2024 fell by 3,331, and 2025 rose by 598.
 | Road and environment | What the road and the conditions do to outcomes |
 | Vehicle and driver | The rating factors an insurer actually prices on |
 
-Screenshots of all five pages are in [`/screenshots`](screenshots).
+Full-size screenshots of all five pages are in [`/screenshots`](screenshots).
 
 ### Walkthrough
 
 The filter panel, cross-page filtering and the decomposition tree running live.
 
 https://github.com/user-attachments/assets/636edba8-a9e5-4224-83a9-bfada76c6e8b
-
 
 
 ---
@@ -96,7 +97,8 @@ denominator this data does not have.
 
 ## Measures
 
-Fifteen, all on a dedicated `Measures` table.
+Twenty-one in all, on a dedicated `Measures` table. The ones that carry the
+report:
 
 | Measure | Definition |
 | --- | --- |
@@ -109,10 +111,10 @@ Fifteen, all on a dedicated `Measures` table.
 | `Casualties per Collision` | `DIVIDE([Total Casualties], [Total Collisions])` |
 | `Collisions Involved` | `DISTINCTCOUNT(Vehicles[collision_index])` |
 | `Casualties per Collision Involved` | `DIVIDE([Total Casualties], [Collisions Involved])` |
-| `Collisions LY` · `Casualties LY` · `KSI Casualty Share LY` | `SAMEPERIODLASTYEAR(Dim_Date[Date])` |
+| `Collisions LY` · `Casualties LY` · `KSI Casualty Share LY` | `CALCULATE(<base measure>, SAMEPERIODLASTYEAR(Dim_Date[Date]))` |
 | `KSI Share vs LY (pp)` | `([KSI Casualty Share] - [KSI Casualty Share LY]) * 100` |
 | `Collisions Change` | `IF(ISBLANK([Collisions LY]), BLANK(), [Total Collisions] - [Collisions LY])` |
-| `Collisions Rolling 12M` | `DATESINPERIOD(Dim_Date[Date], MAX(Dim_Date[Date]), -12, MONTH)` |
+| `Collisions Rolling 12M` | `CALCULATE([Total Collisions], DATESINPERIOD(Dim_Date[Date], MAX(Dim_Date[Date]), -12, MONTH))` |
 | `KSI Share (reliable)` | `IF([Total Casualties] >= 500, [KSI Casualty Share])` |
 
 ---
