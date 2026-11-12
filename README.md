@@ -1,8 +1,12 @@
 # UK Motor Collision Risk
 
-A five-page Power BI report on UK road collisions, 2021 to 2025, built from the
+A five-page Power BI report on road collisions, 2021 to 2025, built from the
 Department for Transport's STATS19 open data. 513,801 reported collisions,
-652,821 casualties, three fact tables and ten dimensions.
+652,821 casualties, three fact tables and thirteen dimensions.
+
+**Coverage.** STATS19 is a Great Britain system, covering England, Scotland and
+Wales. Northern Ireland records collisions separately through the PSNI and is
+not in this data, so no figure here is a United Kingdom total.
 
 It is structured the way an insurer reads a book of business: headline position
 first, then exposure against rate, then the factors that move the rate.
@@ -15,24 +19,27 @@ first, then exposure against rate, then the factors that move the rate.
 
 **Rural roads are worse at every posted speed limit.** Not just on faster
 roads. At 20, 30, 40, 50, 60 and 70mph alike, the rural KSI casualty share sits
-above the urban one. Impact speeds and ambulance response times, not the limit
-on the sign.
+above the urban one. The gap holds where the posted limit is identical, so the
+sign is not what drives it. STATS19 carries neither impact speed nor emergency
+response time, so what does drive it sits outside this data.
 
 **Frequency peaks at rush hour. Severity peaks at four in the morning.** Weekday
 collisions climb to a twin peak at 8am and again from 3pm to 5pm, highest on
 Friday. The KSI casualty share does almost the opposite: lowest at 8am, highest
 before dawn. Two different stories living in the same data.
 
-**Severity peaks at 60mph and falls again at 70.** Motorways carry the fastest
-traffic and a lower severity share than 60mph roads, because they have no
-oncoming traffic, no junctions and no pedestrians.
+**Severity peaks at 60mph and falls again at 70.** The 70mph band carries a
+lower KSI share than the 60mph band despite faster traffic. Road layout is the
+usual explanation, but STATS19 does not carry the design detail to test it.
 
 **Motorcycles are worse than cars at every driver age band**, by a factor of
 two to three throughout. Cars dominate casualty volume; motorcycles dominate
 severity. Neither fact is visible without the other.
 
-**Five years of effort nets out at 438 more collisions.** 2022 rose by 4,917 as
-traffic returned, 2023 fell by 1,746, 2024 fell by 3,331, and 2025 rose by 598.
+**Five years net out at 438 more collisions.** 2022 rose by 4,917 as traffic
+returned, 2023 fell by 1,746, 2024 fell by 3,331, and 2025 rose by 598. The
+2021 baseline is COVID-suppressed, so the yearly moves carry more meaning than
+the total.
 
 ---
 
@@ -59,7 +66,7 @@ https://github.com/user-attachments/assets/636edba8-a9e5-4224-83a9-bfada76c6e8b
 
 ## The model
 
-Three fact tables and ten dimensions in a star schema, with one bridge.
+Three fact tables and thirteen dimensions in a star schema, with one bridge.
 
 ```
                  Dim_Date   Dim_CollisionSeverity   Dim_RoadType
@@ -115,7 +122,7 @@ report:
 | `KSI Share vs LY (pp)` | `([KSI Casualty Share] - [KSI Casualty Share LY]) * 100` |
 | `Collisions Change` | `IF(ISBLANK([Collisions LY]), BLANK(), [Total Collisions] - [Collisions LY])` |
 | `Collisions Rolling 12M` | `CALCULATE([Total Collisions], DATESINPERIOD(Dim_Date[Date], MAX(Dim_Date[Date]), -12, MONTH))` |
-| `KSI Share (reliable)` | `IF([Total Casualties] >= 500, [KSI Casualty Share])` |
+| `KSI Share (500+ casualties)` | `IF([Total Casualties] >= 500, [KSI Casualty Share])` |
 
 ---
 
@@ -125,19 +132,33 @@ report:
 casualties, and the driver-age-by-vehicle-type matrix greys out cells below
 that threshold rather than hiding them. Without it, a van driven by an
 11-to-15-year-old shows a 77.8% KSI share on nine casualties and outranks every
-real finding on the grid.
+real finding on the grid. The threshold guards against tiny denominators, it is
+not a claim of precision: a 21% share on 500 casualties still carries roughly a
+±3.6 percentage point interval at 95%.
 
 **The bridge was audited.** `Unmatched Casualties` returns 0 against 652,821,
 so every casualty resolves to a vehicle and nothing drops silently out of a
 vehicle-filtered visual. There is a hidden `Checks` page in the file carrying
 that test.
 
+**2021 is a suppressed baseline.** Traffic had not recovered when the window
+opens, so the five-year net change sets one depressed year against four normal
+ones. Year-on-year movement from 2022 onward is sound; the 2021 to 2025 total
+is not a clean read on whether roads got safer.
+
+**Severity here is unadjusted, and that matters.** Police forces moved to
+injury-based reporting at different dates, and each switch raised that force's
+count of serious injuries without any change on the road. DfT publishes
+severity adjustment probabilities alongside the data for exactly this reason,
+and recommends them for comparisons that span years or cross forces. This
+report uses raw severity. So the force ranking on page 1 partly reflects
+reporting system rather than road risk, and the five-year KSI trend carries the
+same caveat. Applying the adjustment is the next version of this project.
+
 **Known limits of the source.** STATS19 covers police-reported personal-injury
 collisions only; damage-only collisions are absent. There is no exposure
 denominator in the model, so every rate here is a share of casualties rather
-than collisions per vehicle mile. Injury-based severity reporting was adopted
-by police forces at different dates, so cross-year severity comparison is
-indicative rather than exact.
+than collisions per vehicle mile.
 
 ---
 
@@ -163,5 +184,8 @@ Department for Transport, Road Safety Data (STATS19), collision, vehicle and
 casualty tables for the last five years, plus the Road Safety Open Dataset Data
 Guide used to build every lookup dimension.
 <https://www.data.gov.uk/dataset/cb7ae6f0-4be6-4935-9277-47e5ce24a11f/road-safety-data>
+
+On the severity adjustment referenced under Data quality, DfT's guidance is at
+<https://www.gov.uk/government/publications/guide-to-severity-adjustments-for-reported-road-casualty-statistics>
 
 Open Government Licence v3.0.
